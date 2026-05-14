@@ -153,6 +153,11 @@ lib/
 | `custom_lint` | ^0.7.5 | Linting personalizado |
 | `riverpod_lint` | ^2.6.3 | Reglas de lint específicas de Riverpod |
 
+Si deseas instalar las dependencias desde la terminal puedes usar este comando 
+flutter pub add -d build_runner:^2.4.15 riverpod_generator:^2.6.3 json_serializable:^6.9.5 custom_lint:^0.7.5 riverpod_lint:^2.6.3
+
+Dependencias de desarrollo
+flutter pub add -d build_runner:^2.4.15 riverpod_generator:^2.6.3 json_serializable:^6.9.5 custom_lint:^0.7.5 riverpod_lint:^2.6.3
 ---
 
 ## Configuración y Setup
