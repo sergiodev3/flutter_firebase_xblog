@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\dev\\\\flutter-app\\\\app-with-firebase-example\" -Recurse -Force)",
+      "Bash(Select-Object -Property FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "PowerShell(head -50)",
+      "Bash(New-Item -ItemType Directory -Force \"c:\\\\dev\\\\flutter-app\\\\app-with-firebase-example\\\\assets\\\\images\")",
+      "Bash(Out-Null)",
+      "Bash(New-Item -ItemType File -Force \"c:\\\\dev\\\\flutter-app\\\\app-with-firebase-example\\\\assets\\\\images\\\\.gitkeep\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\dev\\\\flutter-app\\\\app-with-firebase-example\\\\assets\\\\images\")",
+      "PowerShell(New-Item -ItemType File -Force \"c:\\\\dev\\\\flutter-app\\\\app-with-firebase-example\\\\assets\\\\images\\\\.gitkeep\")"
+    ]
+  }
+}
