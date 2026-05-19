@@ -14,7 +14,7 @@ class FeedScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final postsAsync = ref.watch(postsStreamProvider);
-    final currentUser = ref.watch(authViewModelProvider).valueOrNull;
+    final currentUser = ref.watch(authViewModelProvider).asData?.value;
 
     return Scaffold(
       appBar: AppBar(

@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:community_wall/data/repositories/firebase_auth_repository.dart';
@@ -30,7 +29,7 @@ class AuthViewModel extends _$AuthViewModel {
     });
     ref.onDispose(sub.close);
 
-    return ref.read(authStateChangesProvider).valueOrNull;
+    return ref.read(authStateChangesProvider).asData?.value;
   }
 
   Future<void> signIn(String email, String password) async {

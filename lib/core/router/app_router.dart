@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:community_wall/presentation/screens/auth/login_screen.dart';
@@ -44,7 +43,7 @@ GoRouter router(Ref ref) {
       FirebaseAuth.instance.authStateChanges(),
     ),
     redirect: (context, state) {
-      final isAuthenticated = authState.valueOrNull != null;
+      final isAuthenticated = authState.asData?.value != null;
       final isAuthRoute = state.matchedLocation == AppRoutes.splash ||
           state.matchedLocation == AppRoutes.login ||
           state.matchedLocation == AppRoutes.register;
