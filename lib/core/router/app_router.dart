@@ -44,13 +44,19 @@ GoRouter router(Ref ref) {
     ),
     redirect: (context, state) {
       final isAuthenticated = authState.asData?.value != null;
-      final isAuthRoute = state.matchedLocation == AppRoutes.splash ||
-          state.matchedLocation == AppRoutes.login ||
+      final isSplash = state.matchedLocation == AppRoutes.splash;
+      final isAuthRoute = state.matchedLocation == AppRoutes.login ||
           state.matchedLocation == AppRoutes.register;
+
+      // Splash: espera mientras carga; en cuanto resuelve, redirige
+      if (isSplash) {
+        if (authState.isLoading) return null;
+        return isAuthenticated ? AppRoutes.feed : AppRoutes.login;
+      }
 
       // Sin sesión → solo puede ir a rutas de auth
       if (!isAuthenticated && !isAuthRoute) return AppRoutes.login;
-      // Con sesión → no puede volver a splash/login/register
+      // Con sesión → no puede volver a login/register
       if (isAuthenticated && isAuthRoute) return AppRoutes.feed;
       return null; // null = permitir la navegación
     },

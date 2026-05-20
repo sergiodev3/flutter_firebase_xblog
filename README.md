@@ -164,72 +164,173 @@ flutter pub add -d build_runner riverpod_generator json_serializable custom_lint
 
 ### Prerequisitos
 
-- Flutter SDK ≥ 3.18
-- Cuenta de Firebase (plan Spark funciona para Auth + Firestore; plan Blaze para Storage)
-- FlutterFire CLI: `dart pub global activate flutterfire_cli`
+- Flutter SDK ≥ 3.18 — verificar con `flutter doctor`
+- Cuenta de Google para Firebase Console (plan Spark gratuito es suficiente)
+- Android Studio con un AVD (emulador) configurado, o dispositivo físico Android con USB debugging habilitado
 
-### Pasos
+---
 
-**1. Clonar el repositorio**
-```bash
-git clone <repo-url>
-cd app-with-firebase-example
+### Paso 1 — Crear el proyecto en Firebase Console
+
+1. Ve a [console.firebase.google.com](https://console.firebase.google.com)
+2. Clic en **"Agregar proyecto"**
+3. Nombre del proyecto: p.ej. `cbtis-wall`
+4. Desactiva Google Analytics (opcional para este proyecto educativo)
+5. Clic en **"Crear proyecto"** y espera ~30 segundos
+
+---
+
+### Paso 2 — Habilitar servicios
+
+#### Authentication
+1. Menú lateral → **Build → Authentication**
+2. Clic **"Comenzar"**
+3. Pestaña **"Sign-in method"** → **Email/Password** → Habilitar el primero → **Guardar**
+
+#### Firestore Database
+1. Menú lateral → **Build → Firestore Database**
+2. Clic **"Crear base de datos"**
+3. Seleccionar **"Comenzar en modo de producción"** (aplicaremos las reglas correctas en el Paso 7)
+4. Elegir región: `nam5 (us-central)` o la más cercana a ti
+5. Clic **"Listo"**
+
+#### Storage
+1. Menú lateral → **Build → Storage**
+2. Clic **"Comenzar"**
+3. Seleccionar **"Comenzar en modo de producción"**
+4. Confirmar la misma región que Firestore → **"Listo"**
+
+---
+
+### Paso 3 — Registrar la app Web y obtener credenciales
+
+1. En la página principal del proyecto → clic en el ícono **`</>`** (Web)
+2. Apodo de la app: `Community Wall Web`
+3. **NO** marques "Firebase Hosting"
+4. Clic **"Registrar app"**
+5. Aparecerá un objeto `firebaseConfig` similar a este:
+
+```javascript
+const firebaseConfig = {
+  apiKey: "AIzaSyXXXXXXXXXXXXXXXXX",
+  authDomain: "cbtis-wall.firebaseapp.com",
+  projectId: "cbtis-wall",
+  storageBucket: "cbtis-wall.firebasestorage.app",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdef1234567890"
+};
 ```
 
-**2. Crear proyecto Firebase**
+6. Copia esos valores — los usarás en el Paso 5
+7. Clic **"Continuar a la consola"**
 
-- Ir a [Firebase Console](https://console.firebase.google.com/)
-- Crear nuevo proyecto
-- Habilitar **Authentication → Email/Password**
-- Crear base de datos **Firestore** (modo producción)
-- Habilitar **Storage**
+---
 
-**3. Configurar Firebase en el proyecto**
+### Paso 4 — Registrar la app Android
 
-```bash
-flutterfire configure
-```
+> Necesario para que el build de Android compile correctamente.
 
-Esto genera `google-services.json` (Android) y `GoogleService-Info.plist` (iOS).  
-Mueve los archivos a sus ubicaciones:
-- Android: `android/app/google-services.json`
-- iOS: `ios/Runner/GoogleService-Info.plist`
+1. En la página principal del proyecto → clic en el ícono **Android** (robot verde)
+2. **Package name:** `com.example.firebase`
+   _(este valor está en `android/app/build.gradle.kts` → `applicationId`)_
+3. Apodo: `Community Wall Android` (opcional)
+4. SHA-1: dejar vacío (no requerido para Email/Password)
+5. Clic **"Registrar app"**
+6. Clic **"Descargar google-services.json"**
+7. Mueve el archivo descargado a: `android/app/google-services.json`
+8. Clic **"Siguiente"** hasta terminar (el SDK ya está configurado en el proyecto)
 
-> ⚠️ Ambos archivos están en `.gitignore` — nunca los subas a git.
+> `google-services.json` está en `.gitignore` — nunca lo subas a git.
 
-**4. Configurar variables de entorno**
+---
+
+### Paso 5 — Configurar variables de entorno
+
 ```bash
 cp .env.example .env
 ```
 
-Edita `.env` con los valores de tu proyecto (Firebase Console → Configuración del proyecto → Tus apps):
+Abre `.env` y llena los valores usando el `firebaseConfig` del **Paso 3** (app Web):
+
 ```env
-FIREBASE_API_KEY=AIzaSy...
-FIREBASE_APP_ID=1:000000000000:android:...
-FIREBASE_MESSAGING_SENDER_ID=000000000000
-FIREBASE_PROJECT_ID=tu-proyecto-id
-FIREBASE_STORAGE_BUCKET=tu-proyecto-id.firebasestorage.app
-FIREBASE_AUTH_DOMAIN=tu-proyecto-id.firebaseapp.com
+FIREBASE_API_KEY=AIzaSyXXXXXXXXXXXXXXXXX
+FIREBASE_APP_ID=1:123456789012:web:abcdef1234567890
+FIREBASE_MESSAGING_SENDER_ID=123456789012
+FIREBASE_PROJECT_ID=cbtis-wall
+FIREBASE_STORAGE_BUCKET=cbtis-wall.firebasestorage.app
+FIREBASE_AUTH_DOMAIN=cbtis-wall.firebaseapp.com
 ```
 
-**5. Instalar dependencias**
+> **Nota:** `apiKey`, `projectId`, `messagingSenderId`, `storageBucket` y `authDomain`
+> son **iguales** para Web y Android dentro del mismo proyecto Firebase.
+> Solo `appId` difiere por plataforma — usa el de la app Web para `flutter run -d chrome`.
+> El `google-services.json` del Paso 4 aporta la config nativa que Android necesita en build time.
+
+---
+
+### Paso 6 — Instalar dependencias y generar código
+
 ```bash
 flutter pub get
-```
-
-**6. Generar código**
-```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-**7. Publicar reglas de seguridad**
+---
 
-En Firebase Console, copia las reglas de las secciones [Firestore](#firestore-rules) y [Storage](#storage-rules) a continuación.
+### Paso 7 — Publicar reglas de seguridad
 
-**8. Ejecutar la app**
+Copia las reglas de las secciones [Firestore Rules](#firestore-rules) y [Storage Rules](#storage-rules)
+y publícalas en Firebase Console:
+
+- **Firestore:** Build → Firestore Database → Reglas → Editar → Publicar
+- **Storage:** Build → Storage → Reglas → Editar → Publicar
+
+---
+
+### Probar en Web
+
 ```bash
-flutter run
+flutter run -d chrome
 ```
+
+Si el splash redirige al login después de un momento, la configuración es correcta.
+
+Para generar un build deployable:
+```bash
+flutter build web
+# Archivos listos en build/web/
+```
+
+---
+
+### Probar en Android
+
+#### Opción A — Emulador
+
+```bash
+# Ver emuladores disponibles
+flutter emulators
+
+# Lanzar el emulador (sustituye <emulator-id> por el id de la lista anterior)
+flutter emulators --launch <emulator-id>
+
+# Ejecutar la app (el número puede variar, usa flutter devices para confirmarlo)
+flutter run -d emulator-5554
+```
+
+#### Opción B — APK en dispositivo físico
+
+```bash
+# Compilar APK de debug
+flutter build apk --debug
+
+# Instalar con adb (dispositivo conectado por USB con USB debugging habilitado)
+adb install build\app\outputs\flutter-apk\app-debug.apk
+```
+
+> Sin `adb`: copia `build\app\outputs\flutter-apk\app-debug.apk` al dispositivo
+> y ábrelo con el administrador de archivos. Necesitarás permitir la instalación
+> desde fuentes externas en Ajustes → Seguridad del dispositivo.
 
 ---
 
